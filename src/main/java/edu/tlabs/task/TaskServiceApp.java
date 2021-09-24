@@ -8,7 +8,6 @@ public class TaskServiceApp {
 
 	public static void main(String[] args) {
 		SpringApplication.run(TaskServiceApp.class, args);
-		//test commit
 	}
 
 }

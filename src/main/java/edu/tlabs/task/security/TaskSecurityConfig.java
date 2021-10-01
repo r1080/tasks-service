@@ -1,7 +1,6 @@
 package edu.tlabs.task.security;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,8 +11,6 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Res
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
-
-import edu.tlabs.task.filter.RequestResponseLogFilter;
 
 @Configuration
 @EnableResourceServer
@@ -47,14 +44,5 @@ public class TaskSecurityConfig extends ResourceServerConfigurerAdapter {
 		return jwtAccessTokenConverter;
 	}
 
-	@Bean
-	public FilterRegistrationBean<RequestResponseLogFilter> loggingFilter() {
-		FilterRegistrationBean<RequestResponseLogFilter> registrationBean = new FilterRegistrationBean<>();
-
-		registrationBean.setFilter(new RequestResponseLogFilter());
-		registrationBean.addUrlPatterns("/tasks/*");
-
-		return registrationBean;
-	}
 
 }

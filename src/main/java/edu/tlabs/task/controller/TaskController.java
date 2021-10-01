@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TaskController {
 
 	@GetMapping("/tasks")
+	@CrossOrigin
 	public ResponseEntity<String> getTasks() {
 
 		System.out.println("Get tasks hit!!!!!");

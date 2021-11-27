@@ -1,15 +1,16 @@
 package edu.tlabs.task.service;
 
+import java.util.List;
 import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import edu.tlabs.task.controller.TaskRepository;
+import edu.tlabs.task.entity.Task;
 
 @Service
 public class TaskService {
@@ -20,12 +21,15 @@ public class TaskService {
 	private TaskRepository taskRepository;
 
 	@Async("asyncExecutor")
-	public Future<String> saveTask() throws InterruptedException {
-
-		LOGGER.info("Executing Asynchronous Thread -  {} ", Thread.currentThread().getName());
-		Thread.sleep(10000);
-
-		return new AsyncResult<>("Completed Execution");
+	public void saveTask(Task task) throws InterruptedException {
+		LOGGER.info("Executing Asynchronous Thread =>  {} ", Thread.currentThread().getName());
+		taskRepository.save(task);
+	}
+	
+	public List<Task> findAllTasks(){
+		LOGGER.info("Executing Asynchronous Thread =>  {} ", Thread.currentThread().getName());
+		List<Task> tasksList = taskRepository.findAll();
+		return tasksList;
 	}
 
 	public void deleteTask() {

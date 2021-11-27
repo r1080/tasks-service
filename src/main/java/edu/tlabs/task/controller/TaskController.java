@@ -1,8 +1,11 @@
 package edu.tlabs.task.controller;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.tlabs.task.entity.Task;
@@ -31,40 +35,38 @@ public class TaskController {
 	private ExecutorService executorService;
 
 	@GetMapping("/tasks")
-	public ResponseEntity<String> getTasks() {
+	public ResponseEntity<?> getTasks() {
 
-		LOG.info("Get tasks hit!!!!!");
-
-		return new ResponseEntity<String>("TESTTTT World", HttpStatus.OK);
+		Future<List<Task>> future = executorService.submit(() -> taskService.findAllTasks());
+		List<Task> list;
+		try {
+			list = future.get(5000, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			LOG.error("Timeout retrieving tasks from DB ", e);
+			return new ResponseEntity<String>(e.getMessage(),HttpStatus.GATEWAY_TIMEOUT);
+		}
+		return new ResponseEntity<List<Task>>(list, HttpStatus.OK);
 	}
 
 	@PostMapping("/tasks")
-	public ResponseEntity<String> saveTask() {
+	public ResponseEntity<String> saveTask(@RequestBody Task task) {
 		try {
-			Future<String> future = taskService.saveTask();
 
-			LOG.info("Logging thread name to check Async execution");
-			LOG.info("Name {} ", Thread.currentThread().getName());
+			LOG.info("Request Body Task: {} ", task);
+			taskService.saveTask(task);
+			LOG.info("Current Main Thread Name: {} ", Thread.currentThread().getName());
 
-			String string = future.get();
-
-			LOG.info("After execution {} ", string);
-
-		} catch (InterruptedException | ExecutionException e) {
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		return new ResponseEntity<String>("Saving Task...", HttpStatus.I_AM_A_TEAPOT);
+		return new ResponseEntity<String>("Saving Task...", HttpStatus.CREATED);
 	}
 
 	@DeleteMapping("/tasks")
 	public ResponseEntity<String> deleteTask() {
-
 		executorService.submit(() -> taskService.deleteTask());
-		
-		LOG.info("Main thread!!");
-
-		return new ResponseEntity<String>("Deleting Task...", HttpStatus.I_AM_A_TEAPOT);
-
+		LOG.info("Main thread!! {} ", Thread.currentThread().getName());
+		return new ResponseEntity<String>("Deleting Task...", HttpStatus.ACCEPTED);
 	}
 
 }

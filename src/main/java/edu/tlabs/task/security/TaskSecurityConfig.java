@@ -1,5 +1,7 @@
 package edu.tlabs.task.security;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,13 +13,16 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Res
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableResourceServer
 public class TaskSecurityConfig extends ResourceServerConfigurerAdapter {
 
 	private static final String RESOURCE_ID = "task-service";
-	
+
 	@Value("${jwt.token.publicKey}")
 	private String publicKey;
 
@@ -28,7 +33,7 @@ public class TaskSecurityConfig extends ResourceServerConfigurerAdapter {
 
 	@Override
 	public void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().mvcMatchers(HttpMethod.GET, "/tasks").hasAnyRole("ADMIN","USER").and().csrf()
+		http.cors().and().authorizeRequests().mvcMatchers("*", "/tasks").hasAnyRole("ADMIN", "USER").and().csrf()
 				.disable();
 	}
 
@@ -44,5 +49,16 @@ public class TaskSecurityConfig extends ResourceServerConfigurerAdapter {
 		return jwtAccessTokenConverter;
 	}
 
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(Arrays.asList("*"));
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+		configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
+		configuration.setExposedHeaders(Arrays.asList("x-auth-token"));
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
 
 }

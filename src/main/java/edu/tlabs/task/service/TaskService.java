@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import edu.tlabs.task.controller.TaskRepository;
 import edu.tlabs.task.entity.Task;
+import edu.tlabs.task.repo.TaskRepository;
 
 @Service
 public class TaskService {
@@ -31,6 +31,13 @@ public class TaskService {
 		List<Task> tasksList = taskRepository.findAll();
 		return tasksList;
 	}
+	
+	@Async("asyncExecutor")
+	public void saveAllTasks(List<Task> tasks) throws InterruptedException {
+		LOGGER.info("Executing Asynchronous Thread =>  {} ", Thread.currentThread().getName());
+		taskRepository.saveAll(tasks);
+	}
+	
 
 	public void deleteTask() {
 		

@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.tlabs.task.entity.Task;
+import edu.tlabs.task.entity.Tasks;
+import edu.tlabs.task.filter.LogTime;
 import edu.tlabs.task.service.TaskService;
 
 @RestController
@@ -48,7 +50,7 @@ public class TaskController {
 		return new ResponseEntity<List<Task>>(list, HttpStatus.OK);
 	}
 
-	@PostMapping("/tasks")
+	@PostMapping("/task")
 	public ResponseEntity<String> saveTask(@RequestBody Task task) {
 		try {
 
@@ -56,6 +58,21 @@ public class TaskController {
 			taskService.saveTask(task);
 			LOG.info("Current Main Thread Name: {} ", Thread.currentThread().getName());
 
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return new ResponseEntity<String>("Saving Task...", HttpStatus.CREATED);
+	}
+	
+	@PostMapping("/tasks")
+	@LogTime
+	public ResponseEntity<String> saveTasks(@RequestBody Tasks tasks) {
+		try {
+
+			LOG.info("Request Body Task: {} ", tasks);
+			taskService.saveAllTasks(tasks.getTasks());
+			LOG.info("Current Main Thread Name: {} ", Thread.currentThread().getName());
+			//Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

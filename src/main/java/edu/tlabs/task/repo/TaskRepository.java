@@ -1,4 +1,4 @@
-package edu.tlabs.task.controller;
+package edu.tlabs.task.repo;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

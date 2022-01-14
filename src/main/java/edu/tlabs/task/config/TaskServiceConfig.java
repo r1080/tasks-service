@@ -25,6 +25,5 @@ public class TaskServiceConfig {
 		ExecutorService  executorService = Executors.newFixedThreadPool(2);
 		return executorService;
 	}
-	
 
 }
